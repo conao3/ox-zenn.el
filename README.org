@@ -38,6 +38,15 @@ Sample install code using [[https://github.com/conao3/leaf.el][leaf.el]].
 * Usage
 
 * Customize
+** Frontmatter
+*** last_modified property
+~ox-zenn~ inserts ~last_modified~ property by default.
+If you want to not inserting this, please set ~org-zenn-with-last-modified~ to ~nil~ (by global effect)
+or set ~last-modified~ option to ~nil~ (per org document).
+
+#+begin_src org
+,#+options: last-modified:nil
+#+end_src
 
 * Information
 ** Community
