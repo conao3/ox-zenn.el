@@ -49,10 +49,34 @@ Zenn: https://zenn.dev/"
             (lambda (a s v b)
               (if a
                   (org-zenn-export-to-markdown t s v)
-                (org-open-file (org-zenn-export-to-markdown nil s v))))))))
+                (org-open-file (org-zenn-export-to-markdown nil s v)))))))
+  :translate-alist
+  '((link . org-zenn-link)))
 
 
 ;;; functions
+
+(defun org-zenn-link-1 (link _contents _info)
+  "Interpret ox-zenn special scheme.
+Return markdown string if accept special scheme.
+Return nil if cannot interpret the scheme.
+
+For LINK, CONTENTS, INFO description see `org-zenn-link'."
+  (let ((path (org-element-property :path link)))
+    (when (string-match "\\([a-z0-9-]+\\)://\\(.*\\)" path)
+      (let ((scheme (match-string 1 path))
+            (value (match-string 2 path)))
+        (format "@[%s](%s)" scheme value)))))
+
+(defun org-zenn-link (link contents info)
+  "Transcode LINK object into Markdown format.
+CONTENTS is the link's description.  INFO is a plist used as
+a communication channel."
+  (let ((type (org-element-property :type link)))
+    (if (string= type "fuzzy")
+        (or (org-zenn-link-1 link contents info)
+            (org-md-link link contents info))
+      (org-md-link link contents info))))
 
 
 ;;; frontend
