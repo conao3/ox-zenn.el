@@ -52,13 +52,14 @@ Zenn: https://zenn.dev/"
                   (org-zenn-export-to-markdown t s v)
                 (org-open-file (org-zenn-export-to-markdown nil s v)))))))
   :translate-alist
-  '((link . org-zenn-link)
+  '((headline . org-zenn-headline)
+    (link . org-zenn-link)
     (template . org-zenn-template))
   :options-alist
   ;; KEY KEYWORD OPTION DEFAULT BEHAVIOR
   '((:last-modified "LAST_MODIFIED" nil (format-time-string "<%Y-%m-%d %a>"))
     (:with-last-modified nil "last-modified" org-zenn-with-last-modified)
-    (:gfm-headline-offset "GFM_HEADLINE_OFFSET" nil org-zenn-headline-offset)
+    (:gfm-headline-offset nil "headline-offset" org-zenn-headline-offset)
     (:gfm-layout "GFM_LAYOUT" nil org-zenn-layout)
     (:gfm-category "GFM_CATEGORY" nil org-zenn-category)
     (:gfm-tags "GFM_TAGS" nil org-zenn-tags)
@@ -144,6 +145,19 @@ For LINK, CONTENTS, INFO description see `org-zenn-link'."
       (let ((scheme (match-string 1 path))
             (value (match-string 2 path)))
         (format "@[%s](%s)" scheme value)))))
+
+(defun org-zenn-headline (headline contents info)
+  "Make HEADLINE string.
+CONTENTS is the headline contents.
+INFO is a plist used as a communication channel."
+  (cl-flet ((parsenum (elm) (or (and (numberp elm) elm)
+                                (and (stringp elm) (string-to-number elm))
+                                0)))
+    (let* ((num (plist-get info :gfm-headline-offset))
+           (info (if (= 0 num)
+                     info
+                   (plist-put info :headline-offset num))))
+      (org-md-headline headline contents info))))
 
 (defun org-zenn-link (link contents info)
   "Transcode LINK object into Markdown format.

@@ -38,6 +38,26 @@ Sample install code using [[https://github.com/conao3/leaf.el][leaf.el]].
 * Usage
 
 * Customize
+
+** Headline offset
+If ~h1~ is used as a title, and ~#~ is converted to ~h1~ and ~##~
+is converted to ~h2~, you want to output the top level heading
+~*~ in org as ~##~.
+
+You can do this with customizing ~gfm-headline-offset~.  If you
+set this variable to ~1~, ox-zenn will convert ~*~ to ~##~ and
+~**~ to ~###~.
+
+- Global config
+  #+begin_src elisp
+    (setq gfm-headline-offset 1)
+  #+end_src
+
+- Org document
+  #+begin_src org
+    ,#+options: headline-offset:1
+  #+end_src
+
 ** Frontmatter
 *** last_modified property
 ~ox-zenn~ inserts ~last_modified~ property by default.
