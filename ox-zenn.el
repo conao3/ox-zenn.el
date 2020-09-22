@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Version: 0.0.1
 ;; Keywords: convenience
-;; Package-Requires: ((emacs "26.1"))
+;; Package-Requires: ((emacs "26.1") (org "9.0"))
 ;; URL: https://github.com/conao3/ox-zenn.el
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -28,6 +28,9 @@
 
 
 ;;; Code:
+
+(require 'ox-md)
+(require 'ox-publish)
 
 (defgroup ox-zenn nil
   "Zenn flavored markdown backend for org export engine.
