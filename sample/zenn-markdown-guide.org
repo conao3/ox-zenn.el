@@ -1,0 +1,272 @@
+このページではZennのマークダウン記法を一覧で紹介します。
+
+* 見出し
+#+begin_src markdown
+# 見出し1
+## 見出し2
+### 見出し3
+#### 見出し4
+#+end_src
+
+* リスト
+#+begin_src markdown
+- Hello!
+- Hola!
+  - Bonjour!
+  * Hi!
+#+end_src
+
+- Hello!
+- Hola!
+  - Bonjour!
+  * Hi!
+
+リストのアイテムには ~*~ もしくは ~-~ を使います。
+
+*** 番号付きリスト
+#+begin_src markdown
+1. First
+2. Second
+#+end_src
+
+1. First
+2. Second
+
+* 画像
+#+begin_src markdown
+![altテキスト](https://画像のURL)
+#+end_src
+![altテキスト](https://storage.googleapis.com/zenn-user-upload/gxnwu3br83nsbqs873uibiy6fd43)
+
+*** 画像の横幅を指定する
+画像の表示が大きすぎる場合は、URLの後に半角スペースを空けて ~=○○x~ と記述すると、画像の幅をpx単位で指定できます。
+
+#+begin_src markdown
+![altテキスト](https://画像のURL =250x)
+#+end_src
+
+#+attr_html :alt altテキスト :width 250px
+[[https://storage.googleapis.com/zenn-user-upload/gxnwu3br83nsbqs873uibiy6fd43]]
+![altテキスト](https://storage.googleapis.com/zenn-user-upload/gxnwu3br83nsbqs873uibiy6fd43 =250x)
+
+* テキストリンク
+#+begin_src markdown
+[アンカーテキスト](リンクのURL)
+#+end_src
+
+[[https://zenn.dev][アンカーテキスト]]
+
+`Ctrl + K`のショートカットでも挿入できます。
+
+* テーブル
+#+begin_src markdown
+| Head | Head | Head |
+| ---- | ---- | ---- |
+| Text | Text | Text |
+| Text | Text | Text |
+#+end_src
+
+| Head | Head | Head |
+|------+------+------|
+| Text | Text | Text |
+| Text | Text | Text |
+
+* コードブロック
+コードは「 ~```~ 」で挟むことでブロックとして挿入できます。
+以下のように言語を指定するとコードへ装飾（シンタックスハイライト）が適用されます。
+
+#+begin_src markdown
+```js
+
+```
+#+end_src
+
+#+begin_example js
+  const great = () => {
+    console.log("Awesome")
+  }
+#+end_example
+
+* 数式
+Zennでは *KaTeX* による数式表示に対応しています。
+
+*** 数式のブロックを挿入する
+~$$~ で記述を挟むことで、数式のブロックが挿入されます。たとえば
+
+#+begin_src markdown
+$$
+e^{i\theta} = \cos\theta + i\sin\theta
+$$
+#+end_src
+
+は以下のように表示されます。
+
+$$
+e^{i\theta} = \cos\theta + i\sin\theta
+$$
+
+#+attr_html: :type message
+#+begin_quote
+`$$`の前後は空の行でないと正しく埋め込まれないことがあります。
+#+end_quote
+
+*** インラインで数式を挿入する
+~$a\ne0$~ というように ~$~ ひとつで挟むことで、インラインで数式を含めることができます。
+たとえば $a\ne0$ のようなイメージです。
+
+* 引用
+#+begin_src markdown
+> 引用文
+> 引用文
+#+end_src
+
+#+begin_quote
+引用文
+引用文
+#+end_quote
+
+* 注釈
+注釈を指定するとページ下部にその内容が表示されます。
+
+#+begin_src markdown
+脚注の例[^1]です。インライン^[脚注の内容その2]で書くこともできます。
+
+[^1]: 脚注の内容その1
+#+end_src
+
+脚注の例[fn:1]です。インライン[fn:2]で書くこともできます。
+
+* 区切り線
+#+begin_src markdown
+-----
+#+end_src
+
+---
+
+* インラインスタイル
+#+begin_src markdown
+*イタリック*
+**太字**
+~~打ち消し線~~
+インラインで`code`を挿入する
+#+end_src
+
+/イタリック/
+*太字*
++打ち消し線+
+インラインで ~code~ を挿入する
+
+* Zenn独自の記法
+*** メッセージ
+#+begin_src markdown
+:::message
+メッセージをここに
+:::
+#+end_src
+
+#+attr_html: :type message
+#+begin_quote
+メッセージをここに
+#+end_quote
+
+#+begin_src markdown
+:::message alert
+警告メッセージをここに
+:::
+#+end_src
+
+#+attr_html: :type alert
+#+begin_quote
+警告メッセージをここに
+#+end_quote
+
+*** アコーディオン（トグル）
+#+begin_src markdown
+:::details タイトル
+表示したい内容
+:::
+#+end_src
+
+#+attr_html: :type details
+#+begin_quote
+表示したい内容
+#+begin_quote
+
+分かりづらいのですが「detail」ではなく「details」です。
+
+**** ox-zenn特殊記法
+~begin_quote~ だと、クオート内でorg記法が使えないので不便になる気がする。
+インライン記法を用意したい。
+#+begin_src org
+  ,#+start_details
+  ,#+end_details
+#+end_src
+で ~details~ の範囲を指定できたら便利だろうか。
+
+* 外部コンテンツの埋め込み
+*** Twitter
+#+begin_src markdown
+@[tweet](ツイートページのURL)
+#+end_src
+
+[[tweet://ツイートページのURL]]
+
+「twitter」ではなく「tweet」であることにご注意ください。
+
+*** YouTube
+#+begin_src markdown
+@[youtube](動画のID)
+#+end_src
+
+[[youtube://ApXoWvfEYVU]]
+
+URLに含まれる英数字の組み合わせを入力します。
+たとえばURLが ~https://youtube.com/watch?v=ApXoWvfEYVU~ の場合、 ~@[youtube](ApXoWvfEYVU)~ と指定します。
+
+*** CodePen
+#+begin_src markdown
+@[codepen](ページのURL)
+#+end_src
+
+[[codepen://ページのURL]]
+
+デフォルトの表示タブは ~ページのURL?default-tab=html,css~ のようにクエリを指定することで変更できます。
+
+*** SlideShare
+#+begin_src markdown
+@[slideshare](スライドのkey)
+#+end_src
+
+[[slideshare://スライドのkey]]
+
+SlideShareの埋め込みiframeに含まれる ~...embed_code/key/○○...~ の ~○○~ の部分を入力します。
+
+*** SpeakerDeck
+#+begin_src markdown
+@[speakerdeck](スライドのID)
+#+end_src
+
+[[speakerdeck://スライドのID]]
+
+SpeakerDeckで取得した埋め込みコードに含まれる ~data-id~ の値を入力します。
+
+*** JSFiddle
+#+begin_src markdown
+@[jsfiddle](ページのURL)
+#+end_src
+
+[[jsfiddle://ページのURL]]
+
+*** オンラインエディターではモーダルから挿入可能
+
+オンラインのエディターでは「+」ボタンを押すことで、外部コンテンツ埋め込み用のモーダルを表示できます。
+
+[[https://storage.googleapis.com/zenn-user-upload/t87wf3d7xgfv7cabv4a9lfr1t79q]]
+
+---
+
+今後[[https://codesandbox.io][CodeSandbox]]などの埋め込みにも対応する予定です。
+
+* Footnotes
+[fn:1] 脚注の内容その1 
+[fn:2] 脚注の内容その2
