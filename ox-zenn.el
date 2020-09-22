@@ -57,6 +57,7 @@ Zenn: https://zenn.dev/"
   :options-alist
   ;; KEY KEYWORD OPTION DEFAULT BEHAVIOR
   '((:last-modified "LAST_MODIFIED" nil (format-time-string "<%Y-%m-%d %a>"))
+    (:with-last-modified nil "last-modified" org-zenn-with-last-modified)
     (:gfm-headline-offset "GFM_HEADLINE_OFFSET" nil org-zenn-headline-offset)
     (:gfm-layout "GFM_LAYOUT" nil org-zenn-layout)
     (:gfm-category "GFM_CATEGORY" nil org-zenn-category)
@@ -110,6 +111,11 @@ Please edit that org source instead of this file.
   "Default gfm tags devided by spaces."
   :group 'org-export-zennmd
   :type 'string)
+
+(defcustom org-zenn-with-last-modified t
+  "Non-nil means adding `last_modefied' property in frontmatter."
+  :group 'org-export-zennmd
+  :type 'boolean)
 
 
 ;;; functions
@@ -176,12 +182,13 @@ CONTENTS is GFM formart string, INFO is communication channel."
                  (if (eq 'timestamp (car-safe val))
                      (org-timestamp-format val org-zenn-date-format)
                    (format-time-string org-zenn-date-format val)))))
-     (strgen :last-modified "last_modified: %s\n"
-             (lambda (elm)
-               (let ((val (if (listp elm) (car elm) elm)))
-                 (if (eq 'timestamp (car-safe val))
-                     (org-timestamp-format val org-zenn-date-format)
-                   (format-time-string org-zenn-date-format (date-to-time val))))))
+     (when (plist-get info :with-last-modified)
+       (strgen :last-modified "last_modified: %s\n"
+               (lambda (elm)
+                 (let ((val (if (listp elm) (car elm) elm)))
+                   (if (eq 'timestamp (car-safe val))
+                       (org-timestamp-format val org-zenn-date-format)
+                     (format-time-string org-zenn-date-format (date-to-time val)))))))
      (strgen :gfm-custom-front-matter
              "%s\n"
              (lambda (elm)
