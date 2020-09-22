@@ -29,10 +29,11 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'ox-md)
 (require 'ox-publish)
 
-(defgroup ox-zenn nil
+(defgroup org-export-zennmd nil
   "Zenn flavored markdown backend for org export engine.
 Zenn: https://zenn.dev/"
   :group 'convenience
@@ -51,10 +52,80 @@ Zenn: https://zenn.dev/"
                   (org-zenn-export-to-markdown t s v)
                 (org-open-file (org-zenn-export-to-markdown nil s v)))))))
   :translate-alist
-  '((link . org-zenn-link)))
+  '((link . org-zenn-link)
+    (template . org-zenn-template))
+  :options-alist
+  ;; KEY KEYWORD OPTION DEFAULT BEHAVIOR
+  '((:last-modified "LAST_MODIFIED" nil (format-time-string "<%Y-%m-%d %a>"))
+    (:gfm-headline-offset "GFM_HEADLINE_OFFSET" nil org-zenn-headline-offset)
+    (:gfm-layout "GFM_LAYOUT" nil org-zenn-layout)
+    (:gfm-category "GFM_CATEGORY" nil org-zenn-category)
+    (:gfm-tags "GFM_TAGS" nil org-zenn-tags)
+    (:gfm-preamble "GFM_PREAMBLE" nil org-zenn-preamble)
+    (:gfm-postamble "GFM_POSTAMBLE" nil org-zenn-postamble)
+    (:gfm-custom-front-matter "GFM_CUSTOM_FRONT_MATTER" nil nil space)))
+
+
+;;; variables
+
+(defcustom org-zenn-headline-offset 0
+  "Headline offset."
+  :group 'org-export-zennmd
+  :type 'integer)
+
+(defcustom org-zenn-date-format "%Y-%m-%d"
+  "Date format for `org-zenn--create-date-string'."
+  :group 'org-export-zennmd
+  :type 'string)
+
+(defcustom org-zenn-layout ""
+  "Default layout for GFM frontmatter."
+  :group 'org-export-zennmd
+  :type 'string)
+
+(defcustom org-zenn-preamble ""
+  "Default header."
+  :group 'org-export-zennmd
+  :type 'string)
+
+(defcustom org-zenn-postamble "\
+<!--
+This file is generated from org file.
+Please edit that org source instead of this file.
+
+;; Local Variables:
+;; buffer-read-only: t
+;; End:
+-->"
+  "Default footer."
+  :group 'org-export-zennmd
+  :type 'string)
+
+(defcustom org-zenn-category ""
+  "Default gfm category."
+  :group 'org-export-zennmd
+  :type 'string)
+
+(defcustom org-zenn-tags ""
+  "Default gfm tags devided by spaces."
+  :group 'org-export-zennmd
+  :type 'string)
 
 
 ;;; functions
+
+(defun org-zenn--parse-property-arguments (str)
+  "Return an alist converted from a string STR of Hugo property value.
+
+STR is of type \":KEY1 VALUE1 :KEY2 VALUE2 ..\".  Given that, the
+returned value is ((KEY1 . VALUE1) (KEY2 . VALUE2) ..).
+
+Example: Input STR \":foo bar :baz 1 :zoo \\\"two words\\\"\" would
+convert to ((foo . \"bar\") (baz . 1) (zoo . \"two words\"))."
+  (mapcar
+   (lambda (elm)
+     `(,(intern (substring (symbol-name (car elm)) 1)) . ,(cdr elm)))
+   (org-babel-parse-header-arguments str)))
 
 (defun org-zenn-link-1 (link _contents _info)
   "Interpret ox-zenn special scheme.
@@ -77,6 +148,52 @@ a communication channel."
         (or (org-zenn-link-1 link contents info)
             (org-md-link link contents info))
       (org-md-link link contents info))))
+
+(defun org-zenn-template (contents info)
+  "Add frontmatter in Zenn Flavoured Markdown format.
+CONTENTS is GFM formart string, INFO is communication channel."
+  (cl-flet ((strgen (key fmt &optional fn)
+                    (let ((val (plist-get info key)))
+                      (when (and val
+                                 (if (stringp val)
+                                     (not (string-empty-p val))
+                                   t))
+                        (format fmt (funcall (or fn 'identity) (plist-get info key)))))))
+    (concat
+     "---\n"
+     (strgen :gfm-layout "layout: %s\n")
+     (strgen :author "author: [%s]\n" (lambda (elm) (string-join elm ", ")))
+     (strgen :title "title: \"%s\"\n" (lambda (elm) (car elm)))
+     (strgen :description "description: \"%s\"\n")
+     (strgen :gfm-category "category: %s\n")
+     (strgen :gfm-tags "tags: [%s]\n"
+             (lambda (elm) (string-join (split-string elm " " 'omit) ", ")))
+     (strgen :keywords "keywords: [%s]\n"
+             (lambda (elm) (string-join (split-string elm " " 'omit) ", ")))
+     (strgen :date "date: %s\n"
+             (lambda (elm)
+               (let ((val (if (listp elm) (car elm) elm)))
+                 (if (eq 'timestamp (car-safe val))
+                     (org-timestamp-format val org-zenn-date-format)
+                   (format-time-string org-zenn-date-format val)))))
+     (strgen :last-modified "last_modified: %s\n"
+             (lambda (elm)
+               (let ((val (if (listp elm) (car elm) elm)))
+                 (if (eq 'timestamp (car-safe val))
+                     (org-timestamp-format val org-zenn-date-format)
+                   (format-time-string org-zenn-date-format (date-to-time val))))))
+     (strgen :gfm-custom-front-matter
+             "%s\n"
+             (lambda (elm)
+               (mapconcat
+                (lambda (elm)
+                  (format "%s: %s" (car elm) (cdr elm)))
+                (org-zenn--parse-property-arguments elm)
+                "\n")))
+     "---\n"
+     (or (strgen :gfm-preamble "%s\n") "\n")
+     contents
+     (strgen :gfm-postamble "\n\n%s\n"))))
 
 
 ;;; frontend
