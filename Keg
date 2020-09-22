@@ -1,0 +1,9 @@
+;; Keg
+
+(source gnu melpa)
+
+(package
+ (ox-zenn
+  (recipe . (ox-zenn :fetcher github :repo "conao3/ox-zenn.el"))))
+
+(dev-dependency cort)
