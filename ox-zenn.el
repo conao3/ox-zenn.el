@@ -168,7 +168,11 @@ CONTENTS is GFM formart string, INFO is communication channel."
     (concat
      "---\n"
      (strgen :gfm-layout "layout: %s\n")
-     (strgen :author "author: [%s]\n" (lambda (elm) (string-join elm ", ")))
+     (strgen :author "author: %s\n"
+             (lambda (elm)
+               (if (= 1 (length elm))
+                   (car elm)
+                 (format "[%s]" (string-join elm ", ")))))
      (strgen :title "title: \"%s\"\n" (lambda (elm) (car elm)))
      (strgen :description "description: \"%s\"\n")
      (strgen :gfm-category "category: %s\n")
