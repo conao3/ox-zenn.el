@@ -192,7 +192,7 @@ $$ の前後は空の行でないと正しく埋め込まれないことがあ�
 :::
 #+end_src
 
-#+attr_html: :x-type details
+#+attr_html: :x-type details :alt タイトル
 #+begin_quote
 表示したい内容
 #+end_quote
