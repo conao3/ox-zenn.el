@@ -54,6 +54,7 @@ Zenn: https://zenn.dev/"
   :translate-alist
   '((headline . org-zenn-headline)
     (paragraph . org-zenn-paragraph)
+    (strike-through . org-zenn-strike-through)
     (link . org-zenn-link)
     (inner-template . org-zenn-inner-template)
     (template . org-zenn-template))
@@ -275,6 +276,12 @@ a communication channel."
         (or (org-zenn-link-1 link contents info)
             (org-md-link link contents info))
       (org-md-link link contents info))))
+
+(defun org-zenn-strike-through (_strike-through contents _info)
+  "Transcode STRIKE-THROUGH from Org to Markdown (GFM).
+CONTENTS is the text with strike-through markup.  INFO is a plist
+holding contextual information."
+  (format "~~%s~~" contents))
 
 (defun org-zenn-paragraph (paragraph contents info)
   "Transcode PARAGRAPH element into Github Flavoured Markdown format.
