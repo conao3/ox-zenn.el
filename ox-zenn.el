@@ -219,14 +219,9 @@ see `org-md-headline'."
            tags "\n\n"
 	   (and contents (replace-regexp-in-string "^" "    " contents)))))
        (t
-	(let ((anchor
-	       (when (org-zenn--md--headline-referred-p headline info)
-		 (format "<a id=\"%s\"></a>"
-			 (or (org-element-property :CUSTOM_ID headline)
-			     (org-export-get-reference headline info))))))
-	  (concat
-           (org-md--headline-title style level heading anchor tags)
-	   contents)))))))
+	(concat
+         (org-md--headline-title style level heading nil tags)
+	 contents))))))
 
 (defun org-zenn--md--headline-referred-p (headline info)
   "Non-nil when HEADLINE is being referred to.
@@ -376,8 +371,12 @@ of contents as a string, or nil if it is empty."
 			". "))
 	             (apply (plist-get info :html-format-headline-function)
 		            todo todo-type priority text tags :section-number nil))
-	            (or (org-element-property :CUSTOM_ID headline)
-		        (org-export-get-reference headline info)))))
+	            (let ((title (car-safe (org-element-property :title headline))))
+                      (if (not title)
+                          ""
+                        (url-hexify-string
+                         (replace-regexp-in-string
+                          " " "-" (downcase title))))))))
 	headlines)
        "\n"))))
 
