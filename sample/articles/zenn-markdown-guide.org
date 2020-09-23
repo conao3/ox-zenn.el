@@ -1,7 +1,8 @@
 #+title: ZennのMarkdown記法
 #+options: broken-links:mark toc:nil author:nil last-modified:nil
 
-#+gfm_custom_front_matter: :emoji 👩‍💻 :type tech :topics "[markdown, zenn]"
+#+gfm_tags: markdown zenn
+#+gfm_custom_front_matter: :emoji 👩‍💻 :type tech
 #+gfm_custom_front_matter: :published true
 
 このページではZennのマークダウン記法を一覧で紹介します。

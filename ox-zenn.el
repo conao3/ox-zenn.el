@@ -518,7 +518,7 @@ CONTENTS is GFM formart string, INFO is communication channel."
      (strgen :title "title: \"%s\"\n" (lambda (elm) (car elm)))
      (strgen :description "description: \"%s\"\n")
      (strgen :gfm-category "category: %s\n")
-     (strgen :gfm-tags "tags: [%s]\n"
+     (strgen :gfm-tags "topics: [%s]\n"
              (lambda (elm) (string-join (split-string elm " " 'omit) ", ")))
      (strgen :keywords "keywords: [%s]\n"
              (lambda (elm) (string-join (split-string elm " " 'omit) ", ")))
