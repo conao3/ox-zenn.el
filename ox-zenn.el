@@ -53,6 +53,7 @@ Zenn: https://zenn.dev/"
                 (org-open-file (org-zenn-export-to-markdown nil s v)))))))
   :translate-alist
   '((headline . org-zenn-headline)
+    (paragraph . org-zenn-paragraph)
     (link . org-zenn-link)
     (inner-template . org-zenn-inner-template)
     (template . org-zenn-template))
@@ -274,6 +275,18 @@ a communication channel."
         (or (org-zenn-link-1 link contents info)
             (org-md-link link contents info))
       (org-md-link link contents info))))
+
+(defun org-zenn-paragraph (paragraph contents info)
+  "Transcode PARAGRAPH element into Github Flavoured Markdown format.
+CONTENTS is the paragraph contents.  INFO is a plist used as a
+communication channel."
+  (unless (plist-get info :preserve-breaks)
+    (setq contents (concat (mapconcat 'identity (split-string contents) " ") "\n")))
+  (let ((first-object (car (org-element-contents paragraph))))
+    ;; If paragraph starts with a #, protect it.
+    (if (and (stringp first-object) (string-match "\\`#" first-object))
+        (replace-regexp-in-string "\\`#" "\\#" contents nil t)
+      contents)))
 
 (defun org-zenn-toc (depth info &optional scope)
   "Build a table of contents.
