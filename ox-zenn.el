@@ -181,18 +181,17 @@ see `org-md-headline'."
   (unless (org-element-property :footnote-section-p headline)
     (let* ((level (org-export-get-relative-level headline info))
 	   (title (org-export-data (org-element-property :title headline) info))
-	   (todo (and (plist-get info :with-todo-keywords)
-		      (let ((todo (org-element-property :todo-keyword
-							headline)))
-			(and todo (concat (org-export-data todo info) " ")))))
-	   (tags (and (plist-get info :with-tags)
-		      (let ((tag-list (org-export-get-tags headline info)))
-			(and tag-list
-			     (concat "     " (org-make-tag-string tag-list))))))
-	   (priority
-	    (and (plist-get info :with-priority)
-		 (let ((char (org-element-property :priority headline)))
-		   (and char (format "[#%c] " char)))))
+	   (todo (when (plist-get info :with-todo-keywords)
+		   (let ((todo (org-element-property :todo-keyword headline)))
+		     (and todo (concat (org-export-data todo info) " ")))))
+	   (tags (when (plist-get info :with-tags)
+		   (let ((tag-list (org-export-get-tags headline info)))
+		     (when tag-list
+		       (concat "     " (org-make-tag-string tag-list))))))
+	   (priority (when (plist-get info :with-priority)
+		       (let ((char (org-element-property :priority headline)))
+		         (when char
+                           (format "[#%c] " char)))))
 	   ;; Headline text without tags.
 	   (heading (concat todo priority title))
 	   (style (plist-get info :md-headline-style)))
@@ -203,21 +202,27 @@ see `org-md-headline'."
 	    (and (eq style 'atx) (> level 6))
 	    (and (eq style 'setext) (> level 2)))
 	(let ((bullet
-	       (if (not (org-export-numbered-headline-p headline info)) "-"
-		 (concat (number-to-string
-			  (car (last (org-export-get-headline-number
-				      headline info))))
-			 "."))))
-	  (concat bullet (make-string (- 4 (length bullet)) ?\s) heading tags "\n\n"
-		  (and contents (replace-regexp-in-string "^" "    " contents)))))
+	       (if (not (org-export-numbered-headline-p headline info))
+                   "-"
+		 (concat
+                  (number-to-string
+		   (car (last (org-export-get-headline-number headline info))))
+		  "."))))
+	  (concat
+           bullet
+           (make-string (- 4 (length bullet)) ?\s)
+           heading
+           tags "\n\n"
+	   (and contents (replace-regexp-in-string "^" "    " contents)))))
        (t
 	(let ((anchor
-	       (and (org-zenn--md--headline-referred-p headline info)
-		    (format "<a id=\"%s\"></a>"
-			    (or (org-element-property :CUSTOM_ID headline)
-				(org-export-get-reference headline info))))))
-	  (concat (org-md--headline-title style level heading anchor tags)
-		  contents)))))))
+	       (when (org-zenn--md--headline-referred-p headline info)
+		 (format "<a id=\"%s\"></a>"
+			 (or (org-element-property :CUSTOM_ID headline)
+			     (org-export-get-reference headline info))))))
+	  (concat
+           (org-md--headline-title style level heading anchor tags)
+	   contents)))))))
 
 (defun org-zenn--md--headline-referred-p (headline info)
   "Non-nil when HEADLINE is being referred to.
@@ -228,9 +233,9 @@ see `ox-md--headline-referred-p'."
   (unless (org-element-property :footnote-section-p headline)
     (or
      ;; Global table of contents includes HEADLINE.
-     (and (plist-get info :with-toc)
-	  (memq headline
-		(org-export-collect-headlines info (plist-get info :with-toc))))
+     (when (plist-get info :with-toc)
+       (memq headline
+	     (org-export-collect-headlines info (plist-get info :with-toc))))
      ;; A local table of contents includes HEADLINE.
      (cl-some
       (lambda (h)
@@ -242,14 +247,14 @@ see `ox-md--headline-referred-p'."
 	       (when (equal "TOC" (org-element-property :key keyword))
 		 (let ((case-fold-search t)
 		       (value (org-element-property :value keyword)))
-		   (and (string-match-p "\\<headlines\\>" value)
-			(let ((n (and
-				  (string-match "\\<[0-9]+\\>" value)
-				  (string-to-number (match-string 0 value))))
-			      (local? (string-match-p "\\<local\\>" value)))
-			  (memq headline
-				(org-export-collect-headlines
-				 info n (and local? keyword))))))))
+		   (when (string-match-p "\\<headlines\\>" value)
+		     (let ((n (and
+			       (string-match "\\<[0-9]+\\>" value)
+			       (string-to-number (match-string 0 value))))
+			   (local? (string-match-p "\\<local\\>" value)))
+		       (memq headline
+			     (org-export-collect-headlines
+			      info n (and local? keyword))))))))
 	     info t))))
       (org-element-lineage headline))
      ;; A link refers internally to HEADLINE.
@@ -318,18 +323,18 @@ of contents as a string, or nil if it is empty."
        (mapcar
         (lambda (headline)
 	  (let* ((headline-number (org-export-get-headline-number headline info))
-	         (todo (and (plist-get info :with-todo-keywords)
-		            (let ((todo (org-element-property :todo-keyword headline)))
-		              (and todo (org-export-data todo info)))))
-	         (todo-type (and todo (org-element-property :todo-type headline)))
-	         (priority (and (plist-get info :with-priority)
-			        (org-element-property :priority headline)))
+	         (todo (when (plist-get info :with-todo-keywords)
+		         (let ((todo (org-element-property :todo-keyword headline)))
+		           (when todo (org-export-data todo info)))))
+	         (todo-type (when todo (org-element-property :todo-type headline)))
+	         (priority (when (plist-get info :with-priority)
+			     (org-element-property :priority headline)))
 	         (text (org-export-data-with-backend
 		        (org-export-get-alt-title headline info)
 		        (org-export-toc-entry-backend 'html)
 		        info))
-	         (tags (and (eq (plist-get info :with-tags) t)
-		            (org-export-get-tags headline info))))
+	         (tags (when (eq (plist-get info :with-tags) t)
+		         (org-export-get-tags headline info))))
             (format "%s- [%s](#%s)"
                     (org-zenn--make-string
                      (+ -3
@@ -337,11 +342,11 @@ of contents as a string, or nil if it is empty."
                         (org-export-get-relative-level headline info))
                      "  ")
 	            (concat
-	             (and (not (org-export-low-level-p headline info))
-		          (org-export-numbered-headline-p headline info)
-		          (concat
-                           (mapconcat #'number-to-string headline-number ".")
-			   ". "))
+	             (unless (org-export-low-level-p headline info)
+		       (org-export-numbered-headline-p headline info)
+		       (concat
+                        (mapconcat #'number-to-string headline-number ".")
+			". "))
 	             (apply (plist-get info :html-format-headline-function)
 		            todo todo-type priority text tags :section-number nil))
 	            (or (org-element-property :CUSTOM_ID headline)
