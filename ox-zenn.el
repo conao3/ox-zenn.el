@@ -157,12 +157,14 @@ INFO is a plist used as a communication channel."
            (info (if (= 0 num)
                      info
                    (plist-put info :headline-offset num))))
-      (org-md-headline headline contents info))))
+      (org-zenn--md-headline headline contents info))))
 
-(defun org-md-headline (headline contents info)
+(defun org-zenn--md-headline (headline contents info)
   "Transcode HEADLINE element into Markdown format.
 CONTENTS is the headline contents.  INFO is a plist used as
-a communication channel."
+a communication channel.
+
+see `org-md-headline'."
   (unless (org-element-property :footnote-section-p headline)
     (let* ((level (org-export-get-relative-level headline info))
 	   (title (org-export-data (org-element-property :title headline) info))
@@ -197,17 +199,19 @@ a communication channel."
 		  (and contents (replace-regexp-in-string "^" "    " contents)))))
        (t
 	(let ((anchor
-	       (and (org-md--headline-referred-p headline info)
+	       (and (org-zenn--md--headline-referred-p headline info)
 		    (format "<a id=\"%s\"></a>"
 			    (or (org-element-property :CUSTOM_ID headline)
 				(org-export-get-reference headline info))))))
 	  (concat (org-md--headline-title style level heading anchor tags)
 		  contents)))))))
 
-(defun org-md--headline-referred-p (headline info)
+(defun org-zenn--md--headline-referred-p (headline info)
   "Non-nil when HEADLINE is being referred to.
 INFO is a plist used as a communication channel.  Links and table
-of contents can refer to headlines."
+of contents can refer to headlines.
+
+see `ox-md--headline-referred-p'."
   (unless (org-element-property :footnote-section-p headline)
     (or
      ;; Global table of contents includes HEADLINE.
@@ -239,10 +243,19 @@ of contents can refer to headlines."
      (org-element-map (plist-get info :parse-tree) 'link
        (lambda (link)
 	 (eq headline
-	     (pcase (org-element-property :type link)
-	       ((or "custom-id" "id") (org-export-resolve-id-link link info))
-	       ("fuzzy" (org-export-resolve-fuzzy-link link info))
-	       (_ nil))))
+             ;; <FIXPOINT>
+
+             ;; (pcase (org-element-property :type link)
+	     ;;   ((or "custom-id" "id") (org-export-resolve-id-link link info))
+	     ;;   ("fuzzy" (org-export-resolve-fuzzy-link link info))
+	     ;;   (_ nil))
+
+             (let ((transcoder (org-export-transcoder link info)))
+               (when transcoder
+                 (funcall transcoder headline nil info)))
+
+             ;; <FIXPOINT>
+             ))
        info t))))
 
 (defun org-zenn-link (link contents info)
