@@ -74,6 +74,61 @@ or set ~last-modified~ option to ~nil~ (per org document).
     ,#+options: last-modified:nil
   #+end_src
 
+* Known issues
+** Column Groups
+Now, we cannot transform tables using [[https://orgmode.org/manual/Column-Groups.html][column groups]] feature. 
+
+#+begin_src org
+  | Head | Head | Head      |
+  |------+------+-----------|
+  | Text | Text | Teeeeeext |
+  | Text | Text | Text      |
+
+  |   | Head | Head | Head      |
+  |---+------+------+-----------|
+  | / | <    | >    | <>        |
+  |   | Text | Text | Teeeeeext |
+  |   | Text | Text | Text      |
+#+end_src
+
+Transform into
+
+#+begin_src markdown
+  | Head | Head | Head      |
+  | ---- | ---- | --------- |
+  | Text | Text | Teeeeeext |
+  | Text | Text | Text      |
+
+  | Head | Head || Head |
+  | --- | --- | --- |
+  | Text | Text || Teeeeeext |
+  | Text | Text || Text |
+#+end_src
+
+** Borders in tables
+Now, we cannot transform tables using boarders in tables.
+
+#+begin_src org
+  | Head | Head | Head      |
+  |------+------+-----------|
+  | Text | Text | Teeeeeext |
+  | Text | Text | Text      |
+  |------+------+-----------|
+  | Text | Text | Text      |
+  | Text | Text | Text      |
+#+end_src
+
+Transform into
+
+#+begin_src markdown
+  | Head | Head | Head      |
+  | ---- | ---- | --------- |
+  | Text | Text | Teeeeeext |
+  | Text | Text | Text      |
+  | Text | Text | Text      |
+  | Text | Text | Text      |
+#+end_src
+
 * Information
 ** Community
 Any feedback or suggestions are welcome!
