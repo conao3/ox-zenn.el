@@ -97,15 +97,16 @@ Zenn: https://zenn.dev/"
   :group 'org-export-zennmd
   :type 'string)
 
-(defcustom org-zenn-postamble "\
-<!--
-This file is generated from org file.
-Please edit that org source instead of this file.
+(defcustom org-zenn-postamble ""
+  ;; "\
+  ;; <!--
+  ;; This file is generated from org file.
+  ;; Please edit that org source instead of this file.
 
-;; Local Variables:
-;; buffer-read-only: t
-;; End:
--->"
+  ;; ;; Local Variables:
+  ;; ;; buffer-read-only: t
+  ;; ;; End:
+  ;; -->"
   "Default footer."
   :group 'org-export-zennmd
   :type 'string)
