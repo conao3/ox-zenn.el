@@ -1,3 +1,9 @@
+#+title: ZennのMarkdown記法
+#+options: toc:nil
+
+#+gfm_custom_front_matter: :emoji 👩‍💻 :type tech :topics "[markdown, zenn]"
+#+gfm_custom_front_matter: :published true
+
 このページではZennのマークダウン記法を一覧で紹介します。
 
 * 見出し
@@ -36,7 +42,8 @@
 #+begin_src markdown
 ![altテキスト](https://画像のURL)
 #+end_src
-![altテキスト](https://storage.googleapis.com/zenn-user-upload/gxnwu3br83nsbqs873uibiy6fd43)
+#+attr_html: :alt altテキスト
+[[https://storage.googleapis.com/zenn-user-upload/gxnwu3br83nsbqs873uibiy6fd43]]
 
 *** 画像の横幅を指定する
 画像の表示が大きすぎる場合は、URLの後に半角スペースを空けて ~=○○x~ と記述すると、画像の幅をpx単位で指定できます。
@@ -45,9 +52,8 @@
 ![altテキスト](https://画像のURL =250x)
 #+end_src
 
-#+attr_html :alt altテキスト :width 250px
+#+attr_html: :alt altテキスト :width 250px
 [[https://storage.googleapis.com/zenn-user-upload/gxnwu3br83nsbqs873uibiy6fd43]]
-![altテキスト](https://storage.googleapis.com/zenn-user-upload/gxnwu3br83nsbqs873uibiy6fd43 =250x)
 
 * テキストリンク
 #+begin_src markdown
@@ -56,7 +62,7 @@
 
 [[https://zenn.dev][アンカーテキスト]]
 
-`Ctrl + K`のショートカットでも挿入できます。
+~Ctrl + K~ のショートカットでも挿入できます。
 
 * テーブル
 #+begin_src markdown
@@ -81,15 +87,14 @@
 ```
 #+end_src
 
-#+begin_example js
+#+begin_src js
   const great = () => {
     console.log("Awesome")
   }
-#+end_example
+#+end_src
 
 * 数式
 Zennでは *KaTeX* による数式表示に対応しています。
-
 *** 数式のブロックを挿入する
 ~$$~ で記述を挟むことで、数式のブロックが挿入されます。たとえば
 
@@ -105,9 +110,9 @@ $$
 e^{i\theta} = \cos\theta + i\sin\theta
 $$
 
-#+attr_html: :type message
+#+attr_html: :x-type message
 #+begin_quote
-`$$`の前後は空の行でないと正しく埋め込まれないことがあります。
+$$ の前後は空の行でないと正しく埋め込まれないことがあります。
 #+end_quote
 
 *** インラインで数式を挿入する
@@ -164,7 +169,7 @@ $$
 :::
 #+end_src
 
-#+attr_html: :type message
+#+attr_html: :x-type message
 #+begin_quote
 メッセージをここに
 #+end_quote
@@ -175,7 +180,7 @@ $$
 :::
 #+end_src
 
-#+attr_html: :type alert
+#+attr_html: :x-type alert
 #+begin_quote
 警告メッセージをここに
 #+end_quote
@@ -187,10 +192,10 @@ $$
 :::
 #+end_src
 
-#+attr_html: :type details
+#+attr_html: :x-type details
 #+begin_quote
 表示したい内容
-#+begin_quote
+#+end_quote
 
 分かりづらいのですが「detail」ではなく「details」です。
 
