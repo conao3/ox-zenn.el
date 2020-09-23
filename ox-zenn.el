@@ -58,6 +58,7 @@ Zenn: https://zenn.dev/"
     (src-block . org-zenn-src-block)
     (link . org-zenn-link)
     (quote-block . org-zenn-quote-block)
+    (latex-fragment . org-zenn-latex-fragment)
     (table-cell . ox-zenn-table-cell)
     (table-row . ox-zenn-table-row)
     (table . ox-zenn-table)
@@ -305,6 +306,11 @@ a communication channel."
         ":::"))
       (_
        (org-md-quote-block quote-block contents info)))))
+
+(defun org-zenn-latex-fragment (latex-fragment _contents _info)
+  "Transcode a LATEX-FRAGMENT object from Org to HTML.
+CONTENTS is nil.  INFO is a plist holding contextual information."
+  (org-element-property :value latex-fragment))
 
 (defun org-zenn-strike-through (_strike-through contents _info)
   "Transcode STRIKE-THROUGH from Org to Markdown (GFM).
