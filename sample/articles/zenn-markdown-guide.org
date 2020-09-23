@@ -1,5 +1,5 @@
 #+title: ZennのMarkdown記法
-#+options: toc:nil
+#+options: broken-links:mark toc:nil author:nil last-modified:nil
 
 #+gfm_custom_front_matter: :emoji 👩‍💻 :type tech :topics "[markdown, zenn]"
 #+gfm_custom_front_matter: :published true
