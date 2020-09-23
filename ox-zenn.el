@@ -301,7 +301,7 @@ a communication channel."
        (concat ":::message alert\n" contents ":::"))
       ("details"
        (concat
-        (format ":::details %s\n" (or (plist-get attr :alt) "details"))
+        (format ":::details %s\n" (or (plist-get attr :x-summary) "details"))
         contents
         ":::"))
       (_
