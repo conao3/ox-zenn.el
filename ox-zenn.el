@@ -55,6 +55,7 @@ Zenn: https://zenn.dev/"
   '((headline . org-zenn-headline)
     (paragraph . org-zenn-paragraph)
     (strike-through . org-zenn-strike-through)
+    (src-block . org-zenn-src-block)
     (link . org-zenn-link)
     (inner-template . org-zenn-inner-template)
     (template . org-zenn-template))
@@ -282,6 +283,13 @@ a communication channel."
 CONTENTS is the text with strike-through markup.  INFO is a plist
 holding contextual information."
   (format "~~%s~~" contents))
+
+(defun org-zenn-src-block (src-block _contents info)
+  "Transcode SRC-BLOCK element into Github Flavored Markdown format.
+CONTENTS is nil.  INFO is a plist used as a communication channel."
+  (let* ((lang (org-element-property :language src-block))
+         (body (org-export-format-code-default src-block info)))
+    (format "```%s\n%s```" lang body)))
 
 (defun org-zenn-paragraph (paragraph contents info)
   "Transcode PARAGRAPH element into Github Flavoured Markdown format.
