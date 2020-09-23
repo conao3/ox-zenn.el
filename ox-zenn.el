@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Version: 0.0.1
 ;; Keywords: convenience
-;; Package-Requires: ((emacs "26.1") (org "9.0"))
+;; Package-Requires: ((emacs "27.1") (org "9.0"))
 ;; URL: https://github.com/conao3/ox-zenn.el
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -158,6 +158,92 @@ INFO is a plist used as a communication channel."
                      info
                    (plist-put info :headline-offset num))))
       (org-md-headline headline contents info))))
+
+(defun org-md-headline (headline contents info)
+  "Transcode HEADLINE element into Markdown format.
+CONTENTS is the headline contents.  INFO is a plist used as
+a communication channel."
+  (unless (org-element-property :footnote-section-p headline)
+    (let* ((level (org-export-get-relative-level headline info))
+	   (title (org-export-data (org-element-property :title headline) info))
+	   (todo (and (plist-get info :with-todo-keywords)
+		      (let ((todo (org-element-property :todo-keyword
+							headline)))
+			(and todo (concat (org-export-data todo info) " ")))))
+	   (tags (and (plist-get info :with-tags)
+		      (let ((tag-list (org-export-get-tags headline info)))
+			(and tag-list
+			     (concat "     " (org-make-tag-string tag-list))))))
+	   (priority
+	    (and (plist-get info :with-priority)
+		 (let ((char (org-element-property :priority headline)))
+		   (and char (format "[#%c] " char)))))
+	   ;; Headline text without tags.
+	   (heading (concat todo priority title))
+	   (style (plist-get info :md-headline-style)))
+      (cond
+       ;; Cannot create a headline.  Fall-back to a list.
+       ((or (org-export-low-level-p headline info)
+	    (not (memq style '(atx setext)))
+	    (and (eq style 'atx) (> level 6))
+	    (and (eq style 'setext) (> level 2)))
+	(let ((bullet
+	       (if (not (org-export-numbered-headline-p headline info)) "-"
+		 (concat (number-to-string
+			  (car (last (org-export-get-headline-number
+				      headline info))))
+			 "."))))
+	  (concat bullet (make-string (- 4 (length bullet)) ?\s) heading tags "\n\n"
+		  (and contents (replace-regexp-in-string "^" "    " contents)))))
+       (t
+	(let ((anchor
+	       (and (org-md--headline-referred-p headline info)
+		    (format "<a id=\"%s\"></a>"
+			    (or (org-element-property :CUSTOM_ID headline)
+				(org-export-get-reference headline info))))))
+	  (concat (org-md--headline-title style level heading anchor tags)
+		  contents)))))))
+
+(defun org-md--headline-referred-p (headline info)
+  "Non-nil when HEADLINE is being referred to.
+INFO is a plist used as a communication channel.  Links and table
+of contents can refer to headlines."
+  (unless (org-element-property :footnote-section-p headline)
+    (or
+     ;; Global table of contents includes HEADLINE.
+     (and (plist-get info :with-toc)
+	  (memq headline
+		(org-export-collect-headlines info (plist-get info :with-toc))))
+     ;; A local table of contents includes HEADLINE.
+     (cl-some
+      (lambda (h)
+	(let ((section (car (org-element-contents h))))
+	  (and
+	   (eq 'section (org-element-type section))
+	   (org-element-map section 'keyword
+	     (lambda (keyword)
+	       (when (equal "TOC" (org-element-property :key keyword))
+		 (let ((case-fold-search t)
+		       (value (org-element-property :value keyword)))
+		   (and (string-match-p "\\<headlines\\>" value)
+			(let ((n (and
+				  (string-match "\\<[0-9]+\\>" value)
+				  (string-to-number (match-string 0 value))))
+			      (local? (string-match-p "\\<local\\>" value)))
+			  (memq headline
+				(org-export-collect-headlines
+				 info n (and local? keyword))))))))
+	     info t))))
+      (org-element-lineage headline))
+     ;; A link refers internally to HEADLINE.
+     (org-element-map (plist-get info :parse-tree) 'link
+       (lambda (link)
+	 (eq headline
+	     (pcase (org-element-property :type link)
+	       ((or "custom-id" "id") (org-export-resolve-id-link link info))
+	       ("fuzzy" (org-export-resolve-fuzzy-link link info))
+	       (_ nil))))
+       info t))))
 
 (defun org-zenn-link (link contents info)
   "Transcode LINK object into Markdown format.
