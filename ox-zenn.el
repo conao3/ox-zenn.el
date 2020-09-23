@@ -57,6 +57,9 @@ Zenn: https://zenn.dev/"
     (strike-through . org-zenn-strike-through)
     (src-block . org-zenn-src-block)
     (link . org-zenn-link)
+    (table-cell . ox-zenn-table-cell)
+    (table-row . ox-zenn-table-row)
+    (table . ox-zenn-table)
     (inner-template . org-zenn-inner-template)
     (template . org-zenn-template))
   :options-alist
@@ -345,6 +348,81 @@ of contents as a string, or nil if it is empty."
 		        (org-export-get-reference headline info)))))
 	headlines)
        "\n"))))
+
+(defvar ox-zenn-width-cookies nil)
+(defvar ox-zenn-width-cookies-table nil)
+
+(defun ox-zenn-table-col-width (table column info)
+  "Return width of TABLE at given COLUMN.
+INFO is a plist used as communication channel.
+Width of a column is determined either by inquerying `ox-zenn-width-cookies'
+in the column, or by the maximum cell with in the column."
+  (let ((cookie (when (hash-table-p ox-zenn-width-cookies)
+                  (gethash column ox-zenn-width-cookies))))
+    (if (and (eq table ox-zenn-width-cookies-table)
+             cookie)
+        cookie
+      (unless (and (eq table ox-zenn-width-cookies-table)
+                   (hash-table-p ox-zenn-width-cookies))
+        (setq ox-zenn-width-cookies (make-hash-table))
+        (setq ox-zenn-width-cookies-table table))
+      (let ((max-width 0)
+            (specialp (org-export-table-has-special-column-p table)))
+        (org-element-map table 'table-row
+          (lambda (row)
+            (setq max-width
+                  (max max-width
+                       (length
+                        (org-export-data
+                         (org-element-contents
+                          (nth column
+                               (if specialp
+                                   (car (org-element-contents row))
+                                 (org-element-contents row))))
+                         info)))))
+          info)
+        (puthash column max-width ox-zenn-width-cookies)))))
+
+(defun ox-zenn-table-cell (table-cell contents info)
+  "Transcode TABLE-CELL element from Org into GFM.
+CONTENTS is content of the cell.
+INFO is a plist used as a communication channel."
+  (let* ((table (org-export-get-parent-table table-cell))
+         (column (cdr (org-export-table-cell-address table-cell info)))
+         (width (ox-zenn-table-col-width table column info))
+         (contents* (or contents "")))
+    (concat
+     (if (org-export-table-cell-starts-colgroup-p table-cell info) "| " " ")
+     contents*
+     (org-zenn--make-string (- width (string-width contents*)) " ")
+     " |")))
+
+(defun ox-zenn-table-row (table-row contents info)
+  "Transcode TABLE-ROW element from Org into GFM.
+CONTENTS is cell contents of TABLE-ROW.
+INFO is a plist used as a communication channel."
+  (let ((table (org-export-get-parent-table table-row)))
+    (if (not (and (eq 'rule (org-element-property :type table-row))
+                  ;; In GFM, rule is valid only at second row.
+                  (= 1 (cl-position
+                        table-row
+                        (org-element-map table 'table-row 'identity info)))))
+        contents
+      (concat
+       "| "
+       (mapconcat
+        (lambda (col)
+          (let ((width (max 3 (ox-zenn-table-col-width table col info))))
+            (make-string (if (< width 1) 1 width) ?-)))
+        (number-sequence 0 (- (cdr (org-export-table-dimensions table info)) 1))
+        " | ")
+       " |"))))
+
+(defun ox-zenn-table (_table contents _info)
+  "Transcode TABLE element into Github Flavored Markdown table.
+CONTENTS is the contents of the table.
+INFO is a plist holding contextual information."
+  (replace-regexp-in-string "\n\n" "\n" contents))
 
 (defun org-zenn-footnote-section (info)
   "Format the footnote section.
