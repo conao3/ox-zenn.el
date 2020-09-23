@@ -59,6 +59,7 @@ Zenn: https://zenn.dev/"
     (link . org-zenn-link)
     (quote-block . org-zenn-quote-block)
     (latex-fragment . org-zenn-latex-fragment)
+    (footnote-reference . org-zenn-footnote-reference)
     (table-cell . ox-zenn-table-cell)
     (table-row . ox-zenn-table-row)
     (table . ox-zenn-table)
@@ -455,32 +456,28 @@ CONTENTS is the contents of the table.
 INFO is a plist holding contextual information."
   (replace-regexp-in-string "\n\n" "\n" contents))
 
+(defun org-zenn-footnote-reference (footnote-reference _contents info)
+  "Transcode a FOOTNOTE-REFERENCE element from Org to HTML.
+CONTENTS is nil.  INFO is a plist holding contextual information."
+  (format "[^%d]" (org-export-get-footnote-number footnote-reference info)))
+
 (defun org-zenn-footnote-section (info)
   "Format the footnote section.
 INFO is a plist used as a communication channel."
-  (pcase (org-export-collect-footnote-definitions info)
-    (`nil nil)
-    (definitions
-      (concat
-       (format "# %s\n" (org-html--translate "Footnotes" info))
-       (format
-	"\n%s\n"
-	(mapconcat
-	 (lambda (definition)
-	   (pcase definition
-	     (`(,n ,_ ,def)
-	      ;; `org-export-collect-footnote-definitions' can return
-	      ;; two kinds of footnote definitions: inline and blocks.
-	      ;; Since this should not make any difference in the HTML
-	      ;; output, we wrap the inline definitions within
-	      ;; a "footpara" class paragraph.
-	      (format
-               "- [%s](%s) %s"
-               (format "fn.%d" n)
-               (format "#fnr.%d" n)
-               (org-trim (org-export-data def info))))))
-	 definitions
-	 "\n"))))))
+  (concat
+   (mapconcat
+    (lambda (definition)
+      (pcase definition
+        (`(,n ,_ ,def)
+	 ;; `org-export-collect-footnote-definitions' can return
+	 ;; two kinds of footnote definitions: inline and blocks.
+	 ;; Since this should not make any difference in the HTML
+	 ;; output, we wrap the inline definitions within
+	 ;; a "footpara" class paragraph.
+	 (format "[^%d]: %s" n (org-trim (org-export-data def info))))))
+    (org-export-collect-footnote-definitions info)
+    "\n")
+   "\n"))
 
 (defun org-zenn-inner-template (contents info)
   "Return body of document after converting it to Markdown syntax.
@@ -493,10 +490,13 @@ holding export options."
        (concat (org-zenn-toc depth info) "\n\n")))
 
    ;; Document contents.
-   contents "\n\n"
+   contents
 
    ;; Footnotes section.
-   (org-zenn-footnote-section info)))
+   (when (org-export-collect-footnote-definitions info)
+     (concat
+      "\n\n"
+      (org-zenn-footnote-section info)))))
 
 (defun org-zenn-template (contents info)
   "Add frontmatter in Zenn Flavoured Markdown format.
