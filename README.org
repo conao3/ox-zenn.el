@@ -64,9 +64,15 @@ set this variable to ~1~, ox-zenn will convert ~*~ to ~##~ and
 If you want to not inserting this, please set ~org-zenn-with-last-modified~ to ~nil~ (by global effect)
 or set ~last-modified~ option to ~nil~ (per org document).
 
-#+begin_src org
-,#+options: last-modified:nil
-#+end_src
+- Global config
+  #+begin_example elisp
+    (setq org-zenn-with-last-modified nil)
+  #+end_example
+
+- Org document
+  #+begin_src org
+    ,#+options: last-modified:nil
+  #+end_src
 
 * Information
 ** Community
