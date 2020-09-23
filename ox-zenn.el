@@ -458,31 +458,29 @@ INFO is a plist holding contextual information."
 (defun org-zenn-footnote-section (info)
   "Format the footnote section.
 INFO is a plist used as a communication channel."
-  (let* ((fn-alist (org-export-collect-footnote-definitions info))
-         (fn-alist
-          (cl-loop for (n _type raw) in fn-alist collect
-                   (cons n (org-trim (org-export-data raw info))))))
-    (when fn-alist
-      (format
-       "## %s\n%s"
-       "Footnotes"
+  (pcase (org-export-collect-footnote-definitions info)
+    (`nil nil)
+    (definitions
+      (concat
+       (format "# %s\n" (org-html--translate "Footnotes" info))
        (format
-        "\n%s\n"
-        (mapconcat
-         (lambda (fn)
-           (let ((n (car fn)) (def (cdr fn)))
-             (format
-              "%s %s\n"
-              (format
-               (plist-get info :html-footnote-format)
-               (org-html--anchor
-                (format "fn.%d" n)
-                n
-                (format " class=\"footnum\" href=\"#fnr.%d\"" n)
-                info))
-              def)))
-         fn-alist
-         "\n"))))))
+	"\n%s\n"
+	(mapconcat
+	 (lambda (definition)
+	   (pcase definition
+	     (`(,n ,_ ,def)
+	      ;; `org-export-collect-footnote-definitions' can return
+	      ;; two kinds of footnote definitions: inline and blocks.
+	      ;; Since this should not make any difference in the HTML
+	      ;; output, we wrap the inline definitions within
+	      ;; a "footpara" class paragraph.
+	      (format
+               "- [%s](%s) %s"
+               (format "fn.%d" n)
+               (format "#fnr.%d" n)
+               (org-trim (org-export-data def info))))))
+	 definitions
+	 "\n"))))))
 
 (defun org-zenn-inner-template (contents info)
   "Return body of document after converting it to Markdown syntax.
