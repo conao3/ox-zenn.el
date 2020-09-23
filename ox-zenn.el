@@ -57,6 +57,7 @@ Zenn: https://zenn.dev/"
     (strike-through . org-zenn-strike-through)
     (src-block . org-zenn-src-block)
     (link . org-zenn-link)
+    (quote-block . org-zenn-quote-block)
     (table-cell . ox-zenn-table-cell)
     (table-row . ox-zenn-table-row)
     (table . ox-zenn-table)
@@ -286,6 +287,24 @@ a communication channel."
         (or (org-zenn-link-1 link contents info)
             (org-md-link link contents info))
       (org-md-link link contents info))))
+
+(defun org-zenn-quote-block (quote-block contents info)
+  "Transcode QUOTE-BLOCK element into Markdown format.
+CONTENTS is the quote-block contents.  INFO is a plist used as
+a communication channel."
+  (let ((attr (org-export-read-attribute :attr_html quote-block)))
+    (pcase (plist-get attr :x-type)
+      ("message"
+       (concat ":::message\n" contents ":::"))
+      ("alert"
+       (concat ":::message alert\n" contents ":::"))
+      ("details"
+       (concat
+        (format ":::details %s\n" (or (plist-get attr :alt) "details"))
+        contents
+        ":::"))
+      (_
+       (org-md-quote-block quote-block contents info)))))
 
 (defun org-zenn-strike-through (_strike-through contents _info)
   "Transcode STRIKE-THROUGH from Org to Markdown (GFM).
