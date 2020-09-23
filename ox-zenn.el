@@ -54,6 +54,7 @@ Zenn: https://zenn.dev/"
   :translate-alist
   '((headline . org-zenn-headline)
     (link . org-zenn-link)
+    (inner-template . org-zenn-inner-template)
     (template . org-zenn-template))
   :options-alist
   ;; KEY KEYWORD OPTION DEFAULT BEHAVIOR
@@ -120,6 +121,12 @@ Please edit that org source instead of this file.
 
 
 ;;; functions
+
+(defun org-zenn--make-string (n string)
+  "Build a string by concatenating N times STRING."
+  (if (<= n 0)
+      ""
+    (let (out) (dotimes (_ n out) (setq out (concat string out))))))
 
 (defun org-zenn--parse-property-arguments (str)
   "Return an alist converted from a string STR of Hugo property value.
@@ -267,6 +274,94 @@ a communication channel."
         (or (org-zenn-link-1 link contents info)
             (org-md-link link contents info))
       (org-md-link link contents info))))
+
+(defun org-zenn-toc (depth info &optional scope)
+  "Build a table of contents.
+DEPTH is an integer specifying the depth of the table.  INFO is
+a plist used as a communication channel.  Optional argument SCOPE
+is an element defining the scope of the table.  Return the table
+of contents as a string, or nil if it is empty."
+  (let ((headlines (org-export-collect-headlines info depth scope)))
+    (when headlines
+      (string-join
+       (mapcar
+        (lambda (headline)
+	  (let* ((headline-number (org-export-get-headline-number headline info))
+	         (todo (and (plist-get info :with-todo-keywords)
+		            (let ((todo (org-element-property :todo-keyword headline)))
+		              (and todo (org-export-data todo info)))))
+	         (todo-type (and todo (org-element-property :todo-type headline)))
+	         (priority (and (plist-get info :with-priority)
+			        (org-element-property :priority headline)))
+	         (text (org-export-data-with-backend
+		        (org-export-get-alt-title headline info)
+		        (org-export-toc-entry-backend 'html)
+		        info))
+	         (tags (and (eq (plist-get info :with-tags) t)
+		            (org-export-get-tags headline info))))
+            (format "%s- [%s](#%s)"
+                    (org-zenn--make-string
+                     (+ -3
+                        (plist-get info :html-toplevel-hlevel)
+                        (org-export-get-relative-level headline info))
+                     "  ")
+	            (concat
+	             (and (not (org-export-low-level-p headline info))
+		          (org-export-numbered-headline-p headline info)
+		          (concat
+                           (mapconcat #'number-to-string headline-number ".")
+			   ". "))
+	             (apply (plist-get info :html-format-headline-function)
+		            todo todo-type priority text tags :section-number nil))
+	            (or (org-element-property :CUSTOM_ID headline)
+		        (org-export-get-reference headline info)))))
+	headlines)
+       "\n"))))
+
+(defun org-zenn-footnote-section (info)
+  "Format the footnote section.
+INFO is a plist used as a communication channel."
+  (let* ((fn-alist (org-export-collect-footnote-definitions info))
+         (fn-alist
+          (cl-loop for (n _type raw) in fn-alist collect
+                   (cons n (org-trim (org-export-data raw info))))))
+    (when fn-alist
+      (format
+       "## %s\n%s"
+       "Footnotes"
+       (format
+        "\n%s\n"
+        (mapconcat
+         (lambda (fn)
+           (let ((n (car fn)) (def (cdr fn)))
+             (format
+              "%s %s\n"
+              (format
+               (plist-get info :html-footnote-format)
+               (org-html--anchor
+                (format "fn.%d" n)
+                n
+                (format " class=\"footnum\" href=\"#fnr.%d\"" n)
+                info))
+              def)))
+         fn-alist
+         "\n"))))))
+
+(defun org-zenn-inner-template (contents info)
+  "Return body of document after converting it to Markdown syntax.
+CONTENTS is the transcoded contents string.  INFO is a plist
+holding export options."
+  (concat
+   ;; Table of contents.
+   (let ((depth (plist-get info :with-toc)))
+     (when depth
+       (concat (org-zenn-toc depth info) "\n\n")))
+
+   ;; Document contents.
+   contents "\n\n"
+
+   ;; Footnotes section.
+   (org-zenn-footnote-section info)))
 
 (defun org-zenn-template (contents info)
   "Add frontmatter in Zenn Flavoured Markdown format.
