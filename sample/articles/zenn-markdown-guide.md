@@ -129,14 +129,16 @@ $$
 
 は以下のように表示されます。
 
-\[ e^{i\theta} = \cos\theta + i\sin\theta \]
+$$ e^{i\theta} = \cos\theta + i\sin\theta $$
 
-> $$ の前後は空の行でないと正しく埋め込まれないことがあります。
+:::message
+$$ の前後は空の行でないと正しく埋め込まれないことがあります。
+:::
 
 
 ### インラインで数式を挿入する
 
-`$a\ne0$` というように `$` ひとつで挟むことで、インラインで数式を含めることができます。 たとえば \(a\ne0\) のようなイメージです。
+`$a\ne0$` というように `$` ひとつで挟むことで、インラインで数式を含めることができます。 たとえば $a\ne0$ のようなイメージです。
 
 
 # 引用
@@ -159,7 +161,7 @@ $$
 [^1]: 脚注の内容その1
 ```
 
-脚注の例<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>です。インライン<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>で書くこともできます。
+脚注の例[^1]です。インライン[^2]で書くこともできます。
 
 
 # 区切り線
@@ -168,7 +170,7 @@ $$
 -----
 ```
 
-&#x2014;
+---
 
 
 # インラインスタイル
@@ -194,7 +196,9 @@ $$
 :::
 ```
 
-> メッセージをここに
+:::message
+メッセージをここに
+:::
 
 ```markdown
 :::message alert
@@ -202,7 +206,9 @@ $$
 :::
 ```
 
-> 警告メッセージをここに
+:::message alert
+警告メッセージをここに
+:::
 
 
 ### アコーディオン（トグル）
@@ -213,7 +219,9 @@ $$
 :::
 ```
 
-> 表示したい内容
+:::details タイトル
+表示したい内容
+:::
 
 分かりづらいのですが「detail」ではなく「details」です。
 
@@ -302,24 +310,10 @@ SpeakerDeckで取得した埋め込みコードに含まれる `data-id` の値�
 
 <https://storage.googleapis.com/zenn-user-upload/t87wf3d7xgfv7cabv4a9lfr1t79q>
 
-&#x2014;
+---
 
 今後[CodeSandbox](https://codesandbox.io)などの埋め込みにも対応する予定です。
 
 
-## Footnotes
-
-<sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> 脚注の内容その1
-
-<sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> 脚注の内容その2
-
-
-
-<!--
-This file is generated from org file.
-Please edit that org source instead of this file.
-
-;; Local Variables:
-;; buffer-read-only: t
-;; End:
--->
+[^1]: 脚注の内容その1
+[^2]: 脚注の内容その2
