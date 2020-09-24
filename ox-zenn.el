@@ -613,7 +613,7 @@ Return output file's name."
     (org-export-to-file 'zennmd outfile async subtreep visible-only)))
 
 ;;;###autoload
-(defun org-zenn-publish-to-gfm (plist filename pub-dir)
+(defun org-zenn-publish-to-markdown (plist filename pub-dir)
   "Publish an org file to Markdown.
 FILENAME is the filename of the Org file to be published.  PLIST
 is the property list for the given project.  PUB-DIR is the
