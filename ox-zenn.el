@@ -274,9 +274,15 @@ a communication channel."
          (urlp (member type '("http" "https" "ftp" "mailto"))))
     (cond
      ((org-export-inline-image-p link org-html-inline-image-rules)
-      (format "![%s](%s)"
+      (format "![%s](%s%s)"
               (or (plist-get attr :alt) "")
-              (if urlp (concat type ":" path) path)))
+              (if urlp (concat type ":" path) path)
+              (let ((width (plist-get attr :width)))
+                (or (when width
+                      (concat
+                       " ="
+                       (replace-regexp-in-string "px" "x" width)))
+                    ""))))
      ((string= type "fuzzy")
       (or (when (string-match "\\([a-z0-9-]+\\)://\\(.*\\)" path)
             (let ((scheme (match-string 1 path))
