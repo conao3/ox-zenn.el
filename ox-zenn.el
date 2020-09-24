@@ -151,18 +151,6 @@ convert to ((foo . \"bar\") (baz . 1) (zoo . \"two words\"))."
      `(,(intern (substring (symbol-name (car elm)) 1)) . ,(cdr elm)))
    (org-babel-parse-header-arguments str)))
 
-(defun org-zenn-link-1 (link _contents _info)
-  "Interpret ox-zenn special scheme.
-Return markdown string if accept special scheme.
-Return nil if cannot interpret the scheme.
-
-For LINK, CONTENTS, INFO description see `org-zenn-link'."
-  (let ((path (org-element-property :path link)))
-    (when (string-match "\\([a-z0-9-]+\\)://\\(.*\\)" path)
-      (let ((scheme (match-string 1 path))
-            (value (match-string 2 path)))
-        (format "@[%s](%s)" scheme value)))))
-
 (defun org-zenn-headline (headline contents info)
   "Make HEADLINE string.
 CONTENTS is the headline contents.
@@ -274,6 +262,18 @@ see `ox-md--headline-referred-p'."
              ;; <FIXPOINT>
              ))
        info t))))
+
+(defun org-zenn-link-1 (link _contents _info)
+  "Interpret ox-zenn special scheme.
+Return markdown string if accept special scheme.
+Return nil if cannot interpret the scheme.
+
+For LINK, CONTENTS, INFO description see `org-zenn-link'."
+  (let ((path (org-element-property :path link)))
+    (when (string-match "\\([a-z0-9-]+\\)://\\(.*\\)" path)
+      (let ((scheme (match-string 1 path))
+            (value (match-string 2 path)))
+        (format "@[%s](%s)" scheme value)))))
 
 (defun org-zenn-link (link contents info)
   "Transcode LINK object into Markdown format.
