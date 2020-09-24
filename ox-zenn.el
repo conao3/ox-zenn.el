@@ -263,27 +263,21 @@ see `ox-md--headline-referred-p'."
              ))
        info t))))
 
-(defun org-zenn-link-1 (link _contents _info)
-  "Interpret ox-zenn special scheme.
-Return markdown string if accept special scheme.
-Return nil if cannot interpret the scheme.
-
-For LINK, CONTENTS, INFO description see `org-zenn-link'."
-  (let ((path (org-element-property :path link)))
-    (when (string-match "\\([a-z0-9-]+\\)://\\(.*\\)" path)
-      (let ((scheme (match-string 1 path))
-            (value (match-string 2 path)))
-        (format "@[%s](%s)" scheme value)))))
-
 (defun org-zenn-link (link contents info)
   "Transcode LINK object into Markdown format.
 CONTENTS is the link's description.  INFO is a plist used as
 a communication channel."
   (let ((type (org-element-property :type link)))
-    (if (string= type "fuzzy")
-        (or (org-zenn-link-1 link contents info)
-            (org-md-link link contents info))
-      (org-md-link link contents info))))
+    (cond
+     ((string= type "fuzzy")
+      (or (let ((path (org-element-property :path link)))
+            (when (string-match "\\([a-z0-9-]+\\)://\\(.*\\)" path)
+              (let ((scheme (match-string 1 path))
+                    (value (match-string 2 path)))
+                (format "@[%s](%s)" scheme value))))
+          (org-md-link link contents info)))
+     (t
+      (org-md-link link contents info)))))
 
 (defun org-zenn-quote-block (quote-block contents info)
   "Transcode QUOTE-BLOCK element into Markdown format.
