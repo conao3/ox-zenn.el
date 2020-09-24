@@ -510,32 +510,33 @@ CONTENTS is GFM formart string, INFO is communication channel."
                         (format fmt (funcall (or fn 'identity) (plist-get info key)))))))
     (concat
      "---\n"
-     (strgen :gfm-layout "layout: %s\n")
-     (strgen :author "author: %s\n"
-             (lambda (elm)
-               (if (= 1 (length elm))
-                   (car elm)
-                 (format "[%s]" (string-join elm ", ")))))
+     ;; TODO: Currently, Zenn requires specifing only what it needs.
+     ;; (strgen :gfm-layout "layout: %s\n")
+     ;; (strgen :author "author: %s\n"
+     ;;         (lambda (elm)
+     ;;           (if (= 1 (length elm))
+     ;;               (car elm)
+     ;;             (format "[%s]" (string-join elm ", ")))))
      (strgen :title "title: \"%s\"\n" (lambda (elm) (car elm)))
-     (strgen :description "description: \"%s\"\n")
-     (strgen :gfm-category "category: %s\n")
+     ;; (strgen :description "description: \"%s\"\n")
+     ;; (strgen :gfm-category "category: %s\n")
      (strgen :gfm-tags "topics: [%s]\n"
              (lambda (elm) (string-join (split-string elm " " 'omit) ", ")))
-     (strgen :keywords "keywords: [%s]\n"
-             (lambda (elm) (string-join (split-string elm " " 'omit) ", ")))
-     (strgen :date "date: %s\n"
-             (lambda (elm)
-               (let ((val (if (listp elm) (car elm) elm)))
-                 (if (eq 'timestamp (car-safe val))
-                     (org-timestamp-format val org-zenn-date-format)
-                   (format-time-string org-zenn-date-format val)))))
-     (when (plist-get info :with-last-modified)
-       (strgen :last-modified "last_modified: %s\n"
-               (lambda (elm)
-                 (let ((val (if (listp elm) (car elm) elm)))
-                   (if (eq 'timestamp (car-safe val))
-                       (org-timestamp-format val org-zenn-date-format)
-                     (format-time-string org-zenn-date-format (date-to-time val)))))))
+     ;; (strgen :keywords "keywords: [%s]\n"
+     ;;         (lambda (elm) (string-join (split-string elm " " 'omit) ", ")))
+     ;; (strgen :date "date: %s\n"
+     ;;         (lambda (elm)
+     ;;           (let ((val (if (listp elm) (car elm) elm)))
+     ;;             (if (eq 'timestamp (car-safe val))
+     ;;                 (org-timestamp-format val org-zenn-date-format)
+     ;;               (format-time-string org-zenn-date-format val)))))
+     ;; (when (plist-get info :with-last-modified)
+     ;;   (strgen :last-modified "last_modified: %s\n"
+     ;;           (lambda (elm)
+     ;;             (let ((val (if (listp elm) (car elm) elm)))
+     ;;               (if (eq 'timestamp (car-safe val))
+     ;;                   (org-timestamp-format val org-zenn-date-format)
+     ;;                 (format-time-string org-zenn-date-format (date-to-time val)))))))
      (strgen :gfm-custom-front-matter
              "%s\n"
              (lambda (elm)
