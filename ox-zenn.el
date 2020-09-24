@@ -267,9 +267,16 @@ see `ox-md--headline-referred-p'."
   "Transcode LINK object into Markdown format.
 CONTENTS is the link's description.  INFO is a plist used as
 a communication channel."
-  (let ((type (org-element-property :type link))
-        (path (org-element-property :path link)))
+  (let* ((type (org-element-property :type link))
+         (path (org-element-property :path link))
+         (parent (org-export-get-parent link))
+         (attr (org-export-read-attribute :attr_html parent))
+         (urlp (member type '("http" "https" "ftp" "mailto"))))
     (cond
+     ((org-export-inline-image-p link org-html-inline-image-rules)
+      (format "![%s](%s)"
+              (or (plist-get attr :alt) "")
+              (if urlp (concat type ":" path) path)))
      ((string= type "fuzzy")
       (or (when (string-match "\\([a-z0-9-]+\\)://\\(.*\\)" path)
             (let ((scheme (match-string 1 path))
