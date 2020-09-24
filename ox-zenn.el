@@ -267,14 +267,14 @@ see `ox-md--headline-referred-p'."
   "Transcode LINK object into Markdown format.
 CONTENTS is the link's description.  INFO is a plist used as
 a communication channel."
-  (let ((type (org-element-property :type link)))
+  (let ((type (org-element-property :type link))
+        (path (org-element-property :path link)))
     (cond
      ((string= type "fuzzy")
-      (or (let ((path (org-element-property :path link)))
-            (when (string-match "\\([a-z0-9-]+\\)://\\(.*\\)" path)
-              (let ((scheme (match-string 1 path))
-                    (value (match-string 2 path)))
-                (format "@[%s](%s)" scheme value))))
+      (or (when (string-match "\\([a-z0-9-]+\\)://\\(.*\\)" path)
+            (let ((scheme (match-string 1 path))
+                  (value (match-string 2 path)))
+              (format "@[%s](%s)" scheme value)))
           (org-md-link link contents info)))
      (t
       (org-md-link link contents info)))))
