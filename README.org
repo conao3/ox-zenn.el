@@ -1,180 +1,143 @@
-#+author: conao3
-#+date: <2020-03-20 Fri>
+#+title: ox-zenn.el
+#+author: Naoya Yamashita
 
 [[https://github.com/conao3/ox-zenn.el][https://raw.githubusercontent.com/conao3/files/master/blob/headers/png/ox-zenn.el.png]]
+
 [[https://github.com/conao3/ox-zenn.el/blob/master/LICENSE][https://img.shields.io/github/license/conao3/ox-zenn.el.svg?style=flat-square]]
 [[https://github.com/conao3/ox-zenn.el/releases][https://img.shields.io/github/tag/conao3/ox-zenn.el.svg?style=flat-square]]
 [[https://github.com/conao3/ox-zenn.el/actions][https://github.com/conao3/ox-zenn.el/workflows/Main%20workflow/badge.svg]]
-[[https://app.codacy.com/project/conao3/ox-zenn.el/dashboard][https://img.shields.io/codacy/grade/62a36f4f04524d5e8c758440e8071c45.svg?logo=codacy&style=flat-square]]
-[[https://www.patreon.com/conao3][https://img.shields.io/badge/patreon-become%20a%20patron-orange.svg?logo=patreon&style=flat-square]]
-[[https://twitter.com/conao_3][https://img.shields.io/badge/twitter-@conao__3-blue.svg?logo=twitter&style=flat-square]]
-[[https://conao3-support.slack.com/join/shared_invite/enQtNjUzMDMxODcyMjE1LWUwMjhiNTU3Yjk3ODIwNzAxMTgwOTkxNmJiN2M4OTZkMWY0NjI4ZTg4MTVlNzcwNDY2ZjVjYmRiZmJjZDU4MDE][https://img.shields.io/badge/chat-on_slack-blue.svg?logo=slack&style=flat-square]]
 
-* Table of Contents
-- [[#description][Description]]
-- [[#install][Install]]
-- [[#usage][Usage]]
-- [[#customize][Customize]]
-- [[#information][Information]]
-  - [[#community][Community]]
-  - [[#contribution][Contribution]]
-  - [[#migration][Migration]]
-  - [[#license][License]]
-  - [[#author][Author]]
-  - [[#contributors][Contributors]]
+Zenn-flavored Markdown export backend for Org mode.
 
-* Description
+* Overview
+
+ox-zenn provides an Org mode export backend for [[https://zenn.dev/][Zenn]], a popular Japanese tech article platform. Write your articles in Org mode and export them directly to Zenn-compatible Markdown format.
+
 [[https://github.com/conao3/ox-zenn.el][https://raw.githubusercontent.com/conao3/files/master/blob/ox-zenn.el/ox-zenn.gif]]
 
-Zenn flavored markdown backend for org export engine.
+** Features
 
-* Install
-Sample install code using [[https://github.com/conao3/leaf.el][leaf.el]].
+- Full Zenn Markdown syntax support
+- YAML frontmatter generation
+- Code block language highlighting
+- Table conversion
+- Footnote support
+- LaTeX fragment handling
+- Image embedding with width specifications
+
+* Requirements
+
+- Emacs 27.1 or later
+- Org mode 9.0 or later
+
+* Installation
+
+** From MELPA
 
 #+begin_src emacs-lisp
-  (leaf ox-zenn :ensure t)
+(use-package ox-zenn
+  :ensure t)
+#+end_src
+
+** With leaf.el
+
+#+begin_src emacs-lisp
+(leaf ox-zenn :ensure t)
+#+end_src
+
+** Manual Installation
+
+Clone the repository and add it to your load path:
+
+#+begin_src emacs-lisp
+(add-to-list 'load-path "/path/to/ox-zenn.el")
+(require 'ox-zenn)
 #+end_src
 
 * Usage
 
-* Customize
+After loading ox-zenn, use the Org export dispatcher:
 
-** Headline offset
-If ~h1~ is used as a title, and ~#~ is converted to ~h1~ and ~##~
-is converted to ~h2~, you want to output the top level heading
-~*~ in org as ~##~.
+1. Open an Org file
+2. Press =C-c C-e= to open the export dispatcher
+3. Press =z= for Zenn Markdown options:
+   - =Z= - Export to temporary buffer
+   - =z= - Export to file
+   - =o= - Export to file and open
 
-You can do this with customizing ~gfm-headline-offset~.  If you
-set this variable to ~1~, ox-zenn will convert ~*~ to ~##~ and
-~**~ to ~###~.
+You can also export programmatically:
 
-- Global config
-  #+begin_src elisp
-    (setq gfm-headline-offset 1)
-  #+end_src
+#+begin_src emacs-lisp
+(org-zenn-export-to-markdown)    ; Export to file
+(org-zenn-export-as-markdown)    ; Export to buffer
+#+end_src
 
-- Org document
-  #+begin_src org
-    ,#+options: headline-offset:1
-  #+end_src
+* Configuration
 
-** Frontmatter
-*** last_modified property
-~ox-zenn~ inserts ~last_modified~ property by default.
-If you want to not inserting this, please set ~org-zenn-with-last-modified~ to ~nil~ (by global effect)
-or set ~last-modified~ option to ~nil~ (per org document).
+** Headline Offset
 
-- Global config
-  #+begin_example elisp
-    (setq org-zenn-with-last-modified nil)
-  #+end_example
+When publishing to Zenn, =h1= is typically used for the article title. To offset your Org headings (so =*= becomes =##= instead of =#=), configure =org-zenn-headline-offset=:
 
-- Org document
-  #+begin_src org
-    ,#+options: last-modified:nil
-  #+end_src
+#+begin_src emacs-lisp
+;; Global setting
+(setq org-zenn-headline-offset 1)
+#+end_src
 
-* Known issues
-** Column Groups
-Now, we cannot transform tables using [[https://orgmode.org/manual/Column-Groups.html][column groups]] feature. 
+Or per-document:
 
 #+begin_src org
-  | Head | Head | Head      |
-  |------+------+-----------|
-  | Text | Text | Teeeeeext |
-  | Text | Text | Text      |
-
-  |   | Head | Head | Head      |
-  |---+------+------+-----------|
-  | / | <    | >    | <>        |
-  |   | Text | Text | Teeeeeext |
-  |   | Text | Text | Text      |
+#+options: headline-offset:1
 #+end_src
 
-Transform into
+** Last Modified Timestamp
 
-#+begin_src markdown
-  | Head | Head | Head      |
-  | ---- | ---- | --------- |
-  | Text | Text | Teeeeeext |
-  | Text | Text | Text      |
+ox-zenn inserts a =last_modified= frontmatter field by default. To disable this:
 
-  | Head | Head || Head |
-  | --- | --- | --- |
-  | Text | Text || Teeeeeext |
-  | Text | Text || Text |
+#+begin_src emacs-lisp
+;; Global setting
+(setq org-zenn-with-last-modified nil)
 #+end_src
 
-** Borders in tables
-Now, we cannot transform tables using boarders in tables.
+Or per-document:
 
 #+begin_src org
-  | Head | Head | Head      |
-  |------+------+-----------|
-  | Text | Text | Teeeeeext |
-  | Text | Text | Text      |
-  |------+------+-----------|
-  | Text | Text | Text      |
-  | Text | Text | Text      |
+#+options: last-modified:nil
 #+end_src
 
-Transform into
+* Known Limitations
 
-#+begin_src markdown
-  | Head | Head | Head      |
-  | ---- | ---- | --------- |
-  | Text | Text | Teeeeeext |
-  | Text | Text | Text      |
-  | Text | Text | Text      |
-  | Text | Text | Text      |
-#+end_src
+** Column Groups in Tables
 
-* Information
-** Community
-Any feedback or suggestions are welcome!
+Tables using Org's [[https://orgmode.org/manual/Column-Groups.html][column groups]] feature are not fully supported. Column group markers may appear in the output.
 
-You can use github issues, but you can also use [[https://conao3-support.slack.com/join/shared_invite/enQtNjUzMDMxODcyMjE1LWUwMjhiNTU3Yjk3ODIwNzAxMTgwOTkxNmJiN2M4OTZkMWY0NjI4ZTg4MTVlNzcwNDY2ZjVjYmRiZmJjZDU4MDE][Slack]]
-if you want a more casual conversation.
+** Multiple Horizontal Rules in Tables
 
-** Contribution
-We welcome PR!
+Tables with multiple horizontal separators (row groups) will have the extra separators stripped, preserving only the header separator.
 
-*** Require tools for testing
-- keg
-  #+begin_src shell
-    cd ~/
-    hub clone conao3/keg .keg
-    export PATH="$HOME/.keg/bin:$PATH"
-  #+end_src
+* Contributing
 
-*** Running test
-Below operation flow is recommended.
+Contributions are welcome. Please feel free to submit issues and pull requests.
+
+** Development Setup
+
+Install [[https://github.com/conao3/keg][keg]] for running tests:
+
 #+begin_src shell
-  git branch [feature-branch]       # Create branch named [feature-branch]
-  git checkout [feature-branch]     # Checkout branch named [feature-branch]
-
-  # <edit loop>
-  emacs ox-zenn.el             # Edit something you want
-
-  make test                         # Test ox-zenn
-  git commit -am "brabra"           # Commit (auto-run test before commit)
-  # </edit loop>
-
-  hub fork                          # Create fork at GitHub
-  git push [user] [feature-branch]  # Push feature-branch to your fork
-  hub pull-request                  # Create pull-request
+git clone https://github.com/conao3/keg ~/.keg
+export PATH="$HOME/.keg/bin:$PATH"
 #+end_src
 
-** Migration
+** Workflow
 
-** License
-#+begin_example
-  General Public License Version 3 (GPLv3)
-  Copyright (c) Naoya Yamashita - https://conao3.com
-  https://github.com/conao3/ox-zenn.el/blob/master/LICENSE
-#+end_example
+#+begin_src shell
+git checkout -b feature-branch
+# Make your changes
+make test
+git commit -am "Description of changes"
+#+end_src
 
-** Author
-- Naoya Yamashita ([[https://github.com/conao3][conao3]])
+* License
 
-** Contributors
+GPL-3.0. See [[https://github.com/conao3/ox-zenn.el/blob/master/LICENSE][LICENSE]] for details.
+
+Copyright (C) Naoya Yamashita ([[https://github.com/conao3][conao3]])
