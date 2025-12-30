@@ -108,11 +108,49 @@ Or per-document:
 
 ** Column Groups in Tables
 
-Tables using Org's [[https://orgmode.org/manual/Column-Groups.html][column groups]] feature are not fully supported. Column group markers may appear in the output.
+Tables using Org's [[https://orgmode.org/manual/Column-Groups.html][column groups]] feature are not fully supported.
+
+#+begin_src org
+  |   | Head | Head | Head      |
+  |---+------+------+-----------|
+  | / | <    | >    | <>        |
+  |   | Text | Text | Teeeeeext |
+  |   | Text | Text | Text      |
+#+end_src
+
+Transforms into:
+
+#+begin_src markdown
+  | Head | Head || Head |
+  | --- | --- | --- |
+  | Text | Text || Teeeeeext |
+  | Text | Text || Text |
+#+end_src
 
 ** Multiple Horizontal Rules in Tables
 
-Tables with multiple horizontal separators (row groups) will have the extra separators stripped, preserving only the header separator.
+Tables with multiple horizontal separators (row groups) will have the extra separators stripped:
+
+#+begin_src org
+  | Head | Head | Head      |
+  |------+------+-----------|
+  | Text | Text | Teeeeeext |
+  | Text | Text | Text      |
+  |------+------+-----------|
+  | Text | Text | Text      |
+  | Text | Text | Text      |
+#+end_src
+
+Transforms into:
+
+#+begin_src markdown
+  | Head | Head | Head      |
+  | ---- | ---- | --------- |
+  | Text | Text | Teeeeeext |
+  | Text | Text | Text      |
+  | Text | Text | Text      |
+  | Text | Text | Text      |
+#+end_src
 
 * Contributing
 
