@@ -12,15 +12,17 @@ jobs:
       fail-fast: false
       matrix:
         emacs_version:
-          - '27.1'
+          - '29.1'
+          - '30.2'
+          - '31.1'
           - 'snapshot'
         include:
           - emacs_version: 'snapshot'
             allow_failure: true
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
-      - uses: purcell/setup-emacs@master
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+      - uses: purcell/setup-emacs@v8
         with:
           version: ${{ matrix.emacs_version }}
       - uses: conao3/setup-keg@master
