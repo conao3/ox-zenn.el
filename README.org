@@ -27,7 +27,7 @@ ox-zenn provides an Org mode export backend for [[https://zenn.dev/][Zenn]], a p
 
 * Requirements
 
-- Emacs 27.1 or later
+- Emacs 29.1 or later
 - Org mode 9.0 or later
 
 * Installation
