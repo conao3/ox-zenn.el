@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Version: 0.0.1
 ;; Keywords: convenience
-;; Package-Requires: ((emacs "27.1") (org "9.0"))
+;; Package-Requires: ((emacs "29.1") (org "9.0"))
 ;; URL: https://github.com/conao3/ox-zenn.el
 
 ;; This program is free software: you can redistribute it and/or modify
