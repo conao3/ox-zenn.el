@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "zenn-cli": "^0.5.10"
+    "zenn-cli": "^0.5.14"
   },
   "overrides": {
     "@azure/msal-node": "^7.1.2"
