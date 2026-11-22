@@ -333,7 +333,7 @@ CONTENTS is nil.  INFO is a plist used as a communication channel."
 CONTENTS is the paragraph contents.  INFO is a plist used as a
 communication channel."
   (unless (plist-get info :preserve-breaks)
-    (setq contents (concat (mapconcat 'identity (split-string contents) " ") "\n")))
+    (setq contents (concat (mapconcat #'identity (split-string contents) " ") "\n")))
   (let ((first-object (car (org-element-contents paragraph))))
     ;; If paragraph starts with a #, protect it.
     (if (and (stringp first-object) (string-match "\\`#" first-object))
@@ -444,7 +444,7 @@ INFO is a plist used as a communication channel."
                   ;; In GFM, rule is valid only at second row.
                   (= 1 (cl-position
                         table-row
-                        (org-element-map table 'table-row 'identity info)))))
+                        (org-element-map table 'table-row #'identity info)))))
         contents
       (concat
        "| "
@@ -513,7 +513,7 @@ CONTENTS is GFM formart string, INFO is communication channel."
                                  (if (stringp val)
                                      (not (string-empty-p val))
                                    t))
-                        (format fmt (funcall (or fn 'identity) (plist-get info key)))))))
+                        (format fmt (funcall (or fn #'identity) (plist-get info key)))))))
     (concat
      "---\n"
      ;; TODO: Currently, Zenn requires specifing only what it needs.
