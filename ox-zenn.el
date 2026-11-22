@@ -33,7 +33,7 @@
 (require 'ox-md)
 (require 'ox-publish)
 
-(defgroup org-export-zennmd nil
+(defgroup org-zenn nil
   "Zenn flavored markdown backend for org export engine.
 Zenn: https://zenn.dev/"
   :group 'convenience
@@ -82,22 +82,22 @@ Zenn: https://zenn.dev/"
 
 (defcustom org-zenn-headline-offset 0
   "Headline offset."
-  :group 'org-export-zennmd
+  :group 'org-zenn
   :type 'integer)
 
 (defcustom org-zenn-date-format "%Y-%m-%d"
   "Date format for `org-zenn--create-date-string'."
-  :group 'org-export-zennmd
+  :group 'org-zenn
   :type 'string)
 
 (defcustom org-zenn-layout ""
   "Default layout for GFM frontmatter."
-  :group 'org-export-zennmd
+  :group 'org-zenn
   :type 'string)
 
 (defcustom org-zenn-preamble ""
   "Default header."
-  :group 'org-export-zennmd
+  :group 'org-zenn
   :type 'string)
 
 (defcustom org-zenn-postamble ""
@@ -111,22 +111,22 @@ Zenn: https://zenn.dev/"
   ;; ;; End:
   ;; -->"
   "Default footer."
-  :group 'org-export-zennmd
+  :group 'org-zenn
   :type 'string)
 
 (defcustom org-zenn-category ""
   "Default gfm category."
-  :group 'org-export-zennmd
+  :group 'org-zenn
   :type 'string)
 
 (defcustom org-zenn-tags ""
   "Default gfm tags devided by spaces."
-  :group 'org-export-zennmd
+  :group 'org-zenn
   :type 'string)
 
 (defcustom org-zenn-with-last-modified t
   "Non-nil means adding `last_modefied' property in frontmatter."
-  :group 'org-export-zennmd
+  :group 'org-zenn
   :type 'boolean)
 
 
